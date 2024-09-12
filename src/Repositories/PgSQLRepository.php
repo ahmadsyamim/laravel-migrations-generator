@@ -87,6 +87,7 @@ class PgSQLRepository extends Repository
             FROM pg_catalog.pg_proc
                 JOIN pg_namespace ON pg_catalog.pg_proc.pronamespace = pg_namespace.oid
             WHERE prokind IN ('p','f')
+                AND prolang NOT IN (13)
                 AND pg_namespace.nspname = '$searchPath'",
         );
 
