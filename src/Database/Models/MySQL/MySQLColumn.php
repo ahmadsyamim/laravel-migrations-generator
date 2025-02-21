@@ -76,9 +76,13 @@ class MySQLColumn extends DatabaseColumn
 
             case ColumnType::SOFT_DELETES:
             case ColumnType::SOFT_DELETES_TZ:
+            case ColumnType::DATETIME:
+            case ColumnType::DATETIME_TZ:
             case ColumnType::TIMESTAMP:
             case ColumnType::TIMESTAMP_TZ:
                 $this->onUpdateCurrentTimestamp = $this->hasOnUpdateCurrentTimestamp();
+                $this->flattenCurrentTimestamp();
+
                 break;
 
             case ColumnType::GEOGRAPHY:
@@ -343,11 +347,33 @@ class MySQLColumn extends DatabaseColumn
             return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
+        if (Str::startsWith($columnDefault, 'current_timestamp')) {
+            return 'CURRENT_TIMESTAMP';
+        }
+
         return match ($columnDefault) {
-            'current_timestamp()' => 'CURRENT_TIMESTAMP',
             'curdate()' => 'CURRENT_DATE',
             'curtime()' => 'CURRENT_TIME',
             default => $columnDefault,
         };
+    }
+
+    /**
+     * Set the default value to `CURRENT_TIMESTAMP` if the value is `CURRENT_TIMESTAMP(2)`, `CURRENT_TIMESTAMP(3)`, ... `CURRENT_TIMESTAMP(n)`.
+     * This function is needed so that
+     * column type `datetime(2) DEFAULT CURRENT_TIMESTAMP(2)` would be generated as
+     * `dateTime('datetime', 2)->useCurrent()`.
+     */
+    private function flattenCurrentTimestamp(): void
+    {
+        if ($this->default === null) {
+            return;
+        }
+
+        if (!Str::startsWith($this->default, 'CURRENT_TIMESTAMP')) {
+            return;
+        }
+
+        $this->default = 'CURRENT_TIMESTAMP';
     }
 }
