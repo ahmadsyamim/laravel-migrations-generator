@@ -38,6 +38,7 @@ class PgSQLColumn extends DatabaseColumn
             case ColumnType::TIMESTAMP_TZ:
             case ColumnType::SOFT_DELETES:
             case ColumnType::SOFT_DELETES_TZ:
+            case ColumnType::UUID:
                 $this->setRawDefault();
                 break;
 

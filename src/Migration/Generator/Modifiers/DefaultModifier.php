@@ -58,6 +58,7 @@ class DefaultModifier implements Modifier
                 ColumnType::TIME_TZ,
                 ColumnType::TIMESTAMP,
                 ColumnType::TIMESTAMP_TZ,
+                ColumnType::UUID,
             ] as $columnType
         ) {
             $this->chainerMap[$columnType->value] = fn (Method $method, Column $column): Method => call_user_func([$this, 'chainDefaultForDatetime'], $method, $column);
