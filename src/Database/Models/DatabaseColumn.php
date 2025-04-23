@@ -5,15 +5,12 @@ namespace KitLoong\MigrationsGenerator\Database\Models;
 use KitLoong\MigrationsGenerator\Enum\Migrations\ColumnName;
 use KitLoong\MigrationsGenerator\Enum\Migrations\Method\ColumnType;
 use KitLoong\MigrationsGenerator\Schema\Models\Column;
-use KitLoong\MigrationsGenerator\Support\CheckLaravelVersion;
 
 /**
  * @phpstan-import-type SchemaColumn from \KitLoong\MigrationsGenerator\Database\DatabaseSchema
  */
 abstract class DatabaseColumn implements Column
 {
-    use CheckLaravelVersion;
-
     private const REMEMBER_TOKEN_LENGTH = 100;
 
     protected bool $autoincrement;
@@ -82,8 +79,8 @@ abstract class DatabaseColumn implements Column
         $this->presetValues              = [];
         $this->onUpdateCurrentTimestamp  = false;
         $this->rawDefault                = false;
-        $this->virtualDefinition         = null;
-        $this->storedDefinition          = null;
+        $this->virtualDefinition         = $column['generation'] !== null && $column['generation']['type'] === 'virtual' ? $column['generation']['expression'] : null;
+        $this->storedDefinition          = $column['generation'] !== null && $column['generation']['type'] === 'stored' ? $column['generation']['expression'] : null ;
         $this->spatialSubType            = null;
         $this->spatialSrID               = null;
 

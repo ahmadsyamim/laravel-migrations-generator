@@ -57,8 +57,6 @@ class PgSQLColumn extends DatabaseColumn
 
             default:
         }
-
-        $this->setStoredDefinition();
     }
 
     /**
@@ -124,25 +122,6 @@ class PgSQLColumn extends DatabaseColumn
     }
 
     /**
-     * Get geometry mapping.
-     *
-     * @return array<string, \KitLoong\MigrationsGenerator\Enum\Migrations\Method\ColumnType>
-     */
-    private function getGeometryMap(): array
-    {
-        return [
-            'geometry'           => ColumnType::GEOMETRY,
-            'geometrycollection' => ColumnType::GEOMETRY_COLLECTION,
-            'linestring'         => ColumnType::LINE_STRING,
-            'multilinestring'    => ColumnType::MULTI_LINE_STRING,
-            'multipoint'         => ColumnType::MULTI_POINT,
-            'multipolygon'       => ColumnType::MULTI_POLYGON,
-            'point'              => ColumnType::POINT,
-            'polygon'            => ColumnType::POLYGON,
-        ];
-    }
-
-    /**
      * Set to geometry type base on geography map.
      */
     private function setRealSpatialColumn(string $fullDefinitionType): void
@@ -170,17 +149,6 @@ class PgSQLColumn extends DatabaseColumn
 
         $spatialSubType = $matches[2] ?? null;
         $spatialSrID    = isset($matches[3]) ? (int) $matches[3] : null;
-
-        if (!$this->atLeastLaravel11()) {
-            $map = $this->getGeometryMap();
-
-            if (!isset($map[$spatialSubType])) {
-                return;
-            }
-
-            $this->type = $map[$spatialSubType];
-            return;
-        }
 
         $this->spatialSubType = $spatialSubType;
         $this->spatialSrID    = $spatialSrID;
@@ -210,20 +178,5 @@ class PgSQLColumn extends DatabaseColumn
         }
 
         return $presetValues;
-    }
-
-    /**
-     * Set stored definition if the column is stored.
-     */
-    private function setStoredDefinition(): void
-    {
-        $this->storedDefinition = $this->repository->getStoredDefinition($this->tableName, $this->name);
-
-        // A generated column cannot have a column default or an identity definition.
-        if ($this->storedDefinition === null) {
-            return;
-        }
-
-        $this->default = null;
     }
 }
