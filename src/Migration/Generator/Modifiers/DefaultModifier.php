@@ -143,6 +143,13 @@ class DefaultModifier implements Modifier
      */
     protected function chainDefaultForString(Method $method, Column $column): Method
     {
+        if ($column->getName() == 'uuid') {
+            $default = $column->getDefault();
+            $default = DB::raw($default);
+
+            $method->chain(ColumnModifier::DEFAULT, $default);
+            return $method;
+        }
         $method->chain(ColumnModifier::DEFAULT, $column->getDefault());
 
         return $method;
